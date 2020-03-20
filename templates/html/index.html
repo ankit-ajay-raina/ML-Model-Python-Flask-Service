@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Bike Sharing Demand Prediction Demo</title>
+        <meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+		<style>
+			body {
+				@include display-flex();
+				@include align-items(center);
+				@include justify-content(center);
+
+				margin: 0;
+				height: 100%;
+				width: 100%; 
+				background-image: url('/static/images/background1.jpg');
+				font-family: Nunito;
+				color: #888;
+				text-align:center;
+			}
+			
+			.container {
+				background-color: #f9f9f9;
+				max-width: 60%;
+			}
+		</style>
+    </head>
+	
+	<body>
+     <div class="container">
+    	<h1>Bike Sharing Demand Prediction</h1>
+    
+         <!-- Main Input For Receiving Query to our ML -->
+        <form class="form-horizontal" action="{{ url_for('predict')}}"method="post">
+            
+			
+			<div class="form-group row">
+				<label class="col-sm-3 col-form-label">Hour</label>
+				<div class="col-sm-2">
+					<select class="form-control" id="hr" name="hr" required="required">
+						<option value="0.0">12 AM</option>
+						<option value="1.0">1 AM</option>
+						<option value="2.0">2 AM</option>
+						<option value="3.0">3 AM</option>
+						<option value="4.0">4 AM</option>
+						<option value="5.0">5 AM</option>
+						<option value="6.0">6 AM</option>
+						<option value="7.0">7 AM</option>
+						<option value="8.0">8 AM</option>
+						<option value="9.0">9 AM</option>
+						<option value="10.0">10 AM</option>
+						<option value="11.0">11 AM</option>
+						<option value="12.0">12 PM</option>
+						<option value="13.0">1 PM</option>
+						<option value="14.0">2 PM</option>
+						<option value="15.0">3 PM</option>
+						<option value="16.0">4 PM</option>
+						<option value="17.0">5 PM</option>
+						<option value="18.0">6 PM</option>
+						<option value="19.0">7 PM</option>
+						<option value="20.0">8 PM</option>
+						<option value="21.0">9 PM</option>
+						<option value="22.0">10 PM</option>
+						<option value="23.0">11 PM</option>
+					</select>
+				</div>
+			</div>
+            
+			
+			<div class="form-group row">
+				<label class="col-sm-3 col-form-label">Day of the Week</label>
+				<div class="col-sm-3">
+					<select class="form-control" id="weekday" name="weekday" required="required">
+						<option value="Sun">Sunday</option>
+						<option value="Mon">Monday</option>
+						<option value="Tue">Tuesday</option>
+						<option value="Wed">Wednesday</option>
+						<option value="Thu">Thursday</option>
+						<option value="Fri">Friday</option>
+						<option value="Sat">Saturday</option>
+					</select>
+				</div>
+			</div>
+            
+			<div class="form-group">
+				<label class="col-sm-3 col-form-label">Month</label>
+				<div class="col-sm-3">
+					<select class="form-control" id="mnth" name="mnth" required="required">
+						<option value="Jan">January</option>
+						<option value="Feb">February</option>
+						<option value="Mar">March</option>
+						<option value="Apr">April</option>
+						<option value="May">May</option>
+						<option value="Jun">June</option>
+						<option value="Jul">July</option>
+						<option value="Aug">August</option>
+						<option value="Sep">September</option>
+						<option value="Oct">October</option>
+						<option value="Nov">November</option>
+						<option value="Dec">December</option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-sm-3 col-form-label">Season</label>
+				<div class="col-sm-3">
+					<select class="form-control" id="season" name="season" required="required">
+						<option value="Spring">Spring</option>
+						<option value="Summer">Summer</option>
+						<option value="Fall">Fall</option>
+						<option value="Winter">Winter</option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-sm-3 col-form-label">Weather Situation</label>
+				<div class="col-sm-5">
+					<select class="form-control" id="weathersit" name="weathersit" required="required">
+						<option value="1.0">Clear, Few clouds, Partly cloudy, Partly cloudy</option>
+						<option value="2.0">Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist</option>
+						<option value="3.0">Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds</option>
+						<option value="4.0">Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog</option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-sm-3 col-form-label">Humidity</label>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" id="hum" name="hum" min="0" max="100" required="required" />
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-sm-3 col-form-label">Temperature</label>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" id="temp" name="temp" min="-8" max="39" required="required" />
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-sm-3 col-form-label">Wind Speed</label>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" id="windspeed" name="windspeed" min="0" max="67" required="required" />
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label class="col-sm-3 col-form-label">Is it a working day?</label>
+				<div class="col-sm-2">
+					<div class="form-check">
+						<input class="form-check-input" type="radio" name="workingday" id="workingday" value="1" checked>
+						<label class="form-check-label" for="yes">
+							Yes
+						</label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="radio" name="workingday" id="workingday" value="0">
+						<label class="form-check-label" for="no">
+							No
+						</label>
+					</div>
+				</div>
+			</div>
+			
+            <button type="submit" class="btn btn-primary">Predict</button>
+        </form>
+    
+		<br>
+		<br>
+		
+		<div class="form-group" id="result" name="result">
+    		{{ prediction_text }}
+		</div>
+     </div>
+    </body>
+	
+</html>
